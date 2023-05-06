@@ -257,3 +257,4 @@ result/
 .config/
 .dotnet/
 .netrc
+.gitconfig

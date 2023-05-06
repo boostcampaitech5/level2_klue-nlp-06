@@ -253,3 +253,7 @@ data/
 .wget-hsts
 result/
 *.pkl
+
+.config/
+.dotnet/
+.netrc

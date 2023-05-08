@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../utils")
+sys.path.append("./utils")
 
 from metric import *
 from preprocessing import *
@@ -8,12 +8,23 @@ from load_data import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer
 import torch
 import pickle as pickle
+# For wandb setting
+'''
+terminal 에서,
+pip install wandb
+wandb login
+'''
+import wandb
+import datetime
+import shutil
 
-
+tz = datetime.timezone(datetime.timedelta(hours=9))
+day_time = datetime.datetime.now(tz=tz)
+run_name = day_time.strftime('%m%d%H%M%S')
 
 def label_to_num(label):
     num_label = []
-    with open('dict_label_to_num.pkl', 'rb') as f:
+    with open('code/dict_label_to_num.pkl', 'rb') as f:
         dict_label_to_num = pickle.load(f)
     for v in label:
         num_label.append(dict_label_to_num[v])
@@ -28,7 +39,7 @@ def train():
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     # load dataset
-    train_dataset = load_data("../data/train/train.csv")
+    train_dataset = load_data("./data/train/train.csv")
     # dev_dataset = load_data("../data/train/dev.csv") # validation용 데이터는 따로 만드셔야 합니다.
 
     train_label = label_to_num(train_dataset['label'].values)
@@ -74,8 +85,14 @@ def train():
         # `steps`: Evaluate every `eval_steps`.
         # `epoch`: Evaluate every end of epoch.
         eval_steps=500,            # evaluation step.
-        load_best_model_at_end=True
+        load_best_model_at_end=True,
+
+        # wandb loggging 추가
+        report_to="wandb",  # enable logging to W&B
     )
+
+    # For wandb
+    wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=run_name)
     trainer = Trainer(
         # the instantiated 🤗 Transformers model to be trained
         model=model,
@@ -84,14 +101,16 @@ def train():
         eval_dataset=RE_train_dataset,             # evaluation dataset
         compute_metrics=compute_metrics         # define metrics function
     )
-
     # train model
     trainer.train()
     model.save_pretrained('./best_model')
 
+    wandb.finish()
 
 def main():
     train()
+    shutil.rmtree('./wandb')
+    
 
 
 if __name__ == '__main__':

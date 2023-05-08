@@ -253,3 +253,12 @@ data/
 .wget-hsts
 result/
 *.pkl
+
+.conda/
+best_model/
+.config/ 
+.dotnet/
+.netrc
+.gitconfig
+results/
+EDA.ipynb

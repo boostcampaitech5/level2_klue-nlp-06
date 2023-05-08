@@ -261,4 +261,6 @@ best_model/
 .netrc
 .gitconfig
 results/
-EDA.ipynb
+
+*.ipynb
+.git-credentials

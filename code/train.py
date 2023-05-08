@@ -21,7 +21,7 @@ import shutil
 tz = datetime.timezone(datetime.timedelta(hours=9))
 day_time = datetime.datetime.now(tz=tz)
 run_name = day_time.strftime('%m%d%H%M%S')
-breakpoint()
+
 def label_to_num(label):
     num_label = []
     with open('code/dict_label_to_num.pkl', 'rb') as f:

@@ -254,7 +254,11 @@ data/
 result/
 *.pkl
 
-.config/
+.conda/
+best_model/
+.config/ 
 .dotnet/
 .netrc
 .gitconfig
+results/
+EDA.ipynb

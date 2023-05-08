@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../utils")
+sys.path.append("./utils")
 
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from torch.utils.data import DataLoader
@@ -49,7 +49,7 @@ def num_to_label(label):
       숫자로 되어 있던 class를 원본 문자열 라벨로 변환 합니다.
     """
     origin_label = []
-    with open('dict_num_to_label.pkl', 'rb') as f:
+    with open('./code/dict_num_to_label.pkl', 'rb') as f:
         dict_num_to_label = pickle.load(f)
     for v in label:
         origin_label.append(dict_num_to_label[v])
@@ -85,7 +85,7 @@ def main(args):
     model.to(device)
 
     # load test datset
-    test_dataset_dir = "../data/test/test_data.csv"
+    test_dataset_dir = "./data/test/test_data.csv"
     test_id, test_dataset, test_label = load_test_dataset(
         test_dataset_dir, tokenizer)
     Re_test_dataset = RE_Dataset(test_dataset, test_label)
@@ -101,8 +101,8 @@ def main(args):
     output = pd.DataFrame(
         {'id': test_id, 'pred_label': pred_answer, 'probs': output_prob, })
 
-    # 최종적으로 완성된 예측한 라벨 csv 파일 형태로 저장.
-    output.to_csv('../data/prediction/submission.csv', index=False)
+    # 최종적으로 완성된 예측한 라벨 csv 파일 형태로 저
+    output.to_csv('./data/prediction/submission.csv', index=False)
     #### 필수!! ##############################################
     print('---- Finish! ----')
 

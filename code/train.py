@@ -115,7 +115,7 @@ def train():
     )
     # train model
     trainer.train()
-    model.save_pretrained('./best_model')
+    model.save_pretrained(f'./code/results/{run_name}/best_model')
 
     wandb.finish()
 

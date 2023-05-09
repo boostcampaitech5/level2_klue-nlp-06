@@ -20,8 +20,12 @@ def punc_preprocessing_dataset(dataset):
     subject_entity = []
     object_entity = []
     sentences = []
-    for i, j, s in zip(dataset['subject_entity'], dataset['object_entity'], dataset['sentence']):        
-        sentence = s[:eval(i)['start_idx']]+'@'+s[eval(i)['start_idx']:eval(i)['end_idx']+1]+'@'+s[eval(i)['end_idx']+1:eval(j)['start_idx']]+'#'+s[eval(j)['start_idx']:eval(j)['end_idx']+1]+'#'+s[eval(j)['end_idx']:]
+    for i, j, s in zip(dataset['subject_entity'], dataset['object_entity'], dataset['sentence']):
+        if eval(i)['start_idx'] < eval(j)['start_idx']:
+            sentence = s[:eval(i)['start_idx']]+'@'+s[eval(i)['start_idx']:eval(i)['end_idx']+1]+'@'+s[eval(i)['end_idx']+1:eval(j)['start_idx']]+'#'+s[eval(j)['start_idx']:eval(j)['end_idx']+1]+'#'+s[eval(j)['end_idx']:]
+        else:
+            sentence = s[:eval(j)['start_idx']]+'#'+s[eval(j)['start_idx']:eval(j)['end_idx']+1]+'#'+s[eval(j)['end_idx']+1:eval(i)['start_idx']]+'@'+s[eval(i)['start_idx']:eval(i)['end_idx']+1]+'@'+s[eval(i)['end_idx']:]
+
 
         i = i[1:-1].split(',')[0].split(':')[1].lstrip(" '").rstrip("'")
         j = j[1:-1].split(',')[0].split(':')[1].lstrip(" '").rstrip("'")

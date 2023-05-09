@@ -59,8 +59,8 @@ def train():
     dev_label = label_to_num(dev_dataset['label'].values)
 
     # tokenizing dataset
-    tokenized_train = tokenized_dataset(train_dataset, tokenizer)
-    tokenized_dev = tokenized_dataset(dev_dataset, tokenizer)
+    tokenized_train = tokenized_dataset_with_wordtype(train_dataset, tokenizer)
+    tokenized_dev = tokenized_dataset_with_wordtype(dev_dataset, tokenizer)
 
     # make dataset for pytorch.
     RE_train_dataset = RE_Dataset(tokenized_train, train_label)
@@ -77,6 +77,7 @@ def train():
         MODEL_NAME, config=model_config)
     print(model.config)
     model.parameters
+    model.resize_token_embeddings(len(tokenizer))
     model.to(device)
 
     # 사용한 option 외에도 다양한 option들이 있습니다.
@@ -85,12 +86,12 @@ def train():
         output_dir=f'./results/{run_name}',         # output directory
         save_total_limit=5,             # number of total save model.
         save_steps=1500,                # model saving step.
-        num_train_epochs=10,            # total number of training epochs
+        num_train_epochs=5,            # total number of training epochs
         learning_rate=5e-5,             # learning_rate
-        per_device_train_batch_size=16, # batch size per device during training
-        per_device_eval_batch_size=16,  # batch size for evaluation
+        per_device_train_batch_size=32, # batch size per device during training
+        per_device_eval_batch_size=32,  # batch size for evaluation
         warmup_steps=500,               # number of warmup steps for learning rate scheduler
-        weight_decay=0.01,              # strength of weight decay
+        weight_decay=0.01,              # strength of wfeight decay
         logging_dir=f'./results/{run_name}/logs',   # directory for storing logs
         logging_steps=100,              # log saving step.
         evaluation_strategy='steps',    # evaluation strategy to adopt during training

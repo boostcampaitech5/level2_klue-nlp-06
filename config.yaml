@@ -1,0 +1,16 @@
+admin: US #실험자 이름.
+tokenize: tokenizer
+preprocess: #실행시키고자 하는 전처리 함수들 입력.
+  - translate
+  - 
+
+model:
+  model_name: klue/bert-base
+  max_len: 256
+train:
+  batch_size: 16
+  epochs: 10
+  LR: 0.00005
+  save_steps: 1500
+  eval_steps: 500
+  get_dev_pred: True #dev set의 inference.

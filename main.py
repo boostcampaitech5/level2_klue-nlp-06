@@ -28,6 +28,6 @@ if __name__ == "__main__":
         CFG = EasyDict(CFG)
 
         train.main(CFG, save_path)
-        if run_type == "inference":
+        if run_type == "both":
             inference.main(CFG, run_type, save_path)
         

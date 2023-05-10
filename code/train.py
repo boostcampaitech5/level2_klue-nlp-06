@@ -85,10 +85,10 @@ def train():
         output_dir=f'./results/{run_name}',         # output directory
         save_total_limit=5,             # number of total save model.
         save_steps=1500,                # model saving step.
-        num_train_epochs=15,            # total number of training epochs
+        num_train_epochs=5,            # total number of training epochs
         learning_rate=5e-5,             # learning_rate
-        per_device_train_batch_size=16, # batch size per device during training
-        per_device_eval_batch_size=16,  # batch size for evaluation
+        per_device_train_batch_size=32, # batch size per device during training
+        per_device_eval_batch_size=32,  # batch size for evaluation
         warmup_steps=500,               # number of warmup steps for learning rate scheduler
         weight_decay=0.01,              # strength of weight decay
         logging_dir=f'./results/{run_name}/logs',   # directory for storing logs

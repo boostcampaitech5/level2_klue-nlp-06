@@ -1,4 +1,3 @@
-from src import sys_setting
 import os
 from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
@@ -84,7 +83,7 @@ def train(CFG, save_path):
         # `epoch`: Evaluate every end of epoch.
         eval_steps=CFG.train.eval_steps,         # evaluation step.
         load_best_model_at_end=True,
-        metric_for_best_model='f1',
+        metric_for_best_model='micro f1 score',
 
         # wandb loggging 추가
         report_to="wandb",  # enable logging to W&B

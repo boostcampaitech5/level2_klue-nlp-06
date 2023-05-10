@@ -1,4 +1,3 @@
-from src import sys_setting
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from torch.utils.data import DataLoader
 from utils import *

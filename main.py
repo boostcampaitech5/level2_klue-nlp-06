@@ -3,7 +3,7 @@ import argparse
 
 from easydict import EasyDict
 from src import inference, train
-from utils import utils
+from utils import utility
 
 if __name__ == "__main__":
     # run type 설정
@@ -18,18 +18,16 @@ if __name__ == "__main__":
         CFG = yaml.load(f, Loader=yaml.FullLoader)
 
     # code 실행
-    if args.run_type == "inference":
+    if run_type == "inference":
         CFG = EasyDict(CFG)
         inference.main(CFG, run_type, save_path=None)
     else:
-        save_path = utils.make_run_name(EasyDict(CFG))
+        save_path = utility.make_run_name(EasyDict(CFG))
         with open(f'{save_path}/config.yaml', 'w') as f:
             yaml.dump(CFG, f)
         CFG = EasyDict(CFG)
 
-        if args.run_type == "train":
-            train.main(CFG, save_path)
-        else:
-            train.main(CFG, save_path)
+        train.main(CFG, save_path)
+        if run_type == "inference":
             inference.main(CFG, run_type, save_path)
         

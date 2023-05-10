@@ -3,14 +3,16 @@ tokenize: tokenizer
 preprocess: #실행시키고자 하는 전처리 함수들 입력.
   - translate
   - 
-
 model:
   model_name: klue/bert-base
   max_len: 256
 train:
   batch_size: 16
-  epochs: 10
+  epochs: 1
   LR: 0.00005
   save_steps: 1500
   eval_steps: 500
-  get_dev_pred: True #dev set의 inference.
+inference:
+  get_dev_pred: True #dev set의 inference 여부.
+  run_name: 0510_18:06:30_US #inference만 실행 시 모델 run_name 입력.
+  ckpt: 500 # checkpoint 위치. 0일 때는 자동으로 best_model 사용.

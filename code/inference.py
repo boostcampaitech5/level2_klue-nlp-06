@@ -66,8 +66,37 @@ def load_test_dataset(dataset_dir, tokenizer):
     tokenized_test = tokenized_dataset(test_dataset, tokenizer)
     return test_dataset['id'], tokenized_test, test_label
 
+def load_dev_dataset(dataset_dir, tokenizer):
+    """
+      test dataset을 불러온 후,
+      tokenizing 합니다.
+    """
+    test_dataset = load_data(dataset_dir)
+    test_dataset['label'] = 100
+    test_label = list(map(int, test_dataset['label'].values))
+    # tokenizing dataset
+    tokenized_test = tokenized_dataset(test_dataset, tokenizer)
+    return test_dataset['id'], tokenized_test, test_label
 
-def main(args):
+def save_prediction(model, dev_dir, device, tokenizer, model_name):
+    """
+    dev data의 예측값 반환 후 저장하는 함수.
+    """
+
+    dev_id, dev_dataset, dev_label = load_dev_dataset(dev_dir, tokenizer)
+    Re_dev_dataset = RE_Dataset(dev_dataset, dev_label)
+    pred_dev_answer, output_dev_prob = inference(model, Re_dev_dataset, device)
+    pred_dev_answer = num_to_label(pred_dev_answer)
+
+    dev_output = pd.DataFrame(
+    {'id': dev_id, 'pred_label': pred_dev_answer, 'probs': output_dev_prob, })
+
+
+    # dev data 예측한 라벨 csv 파일 형태로 저장
+    dev_output.to_csv('./results/' + model_name+ '/dev_prediction.csv', index=False)
+
+
+def main():
     """
       주어진 dataset csv 파일과 같은 형태일 경우 inference 가능한 코드입니다.
     """
@@ -77,10 +106,16 @@ def main(args):
     tokenizer = AutoTokenizer.from_pretrained(Tokenizer_NAME)
 
     # load my model
-    MODEL_NAME = args.model_dir  # model dir.
-    model = AutoModelForSequenceClassification.from_pretrained(args.model_dir)
+    model_name = '0509002503'   # 모델 이름 config 파일에서 불러오기
+    model_dir = './results/' + model_name + '/best_model'  # model dir.
+    print(model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
     model.parameters
     model.to(device)
+
+    get_dev_prediction=True # dev prediction 파일 만들지 말지 결정하는 변수. config에서 불러오기.
+    if get_dev_prediction==True:
+        save_prediction(model, './data/train/dev_bal.csv', device, tokenizer, model_name)
 
     # load test datset
     test_dataset_dir = "./data/test/test_data.csv"
@@ -99,17 +134,11 @@ def main(args):
     output = pd.DataFrame(
         {'id': test_id, 'pred_label': pred_answer, 'probs': output_prob, })
 
-    # 최종적으로 완성된 예측한 라벨 csv 파일 형태로 저
-    output.to_csv('./data/prediction/submission.csv', index=False)
+    # 최종적으로 완성된 예측한 라벨 csv 파일 형태로 저장
+    output.to_csv('./results/' + model_name+ '/submission.csv', index=False)
     #### 필수!! ##############################################
     print('---- Finish! ----')
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    # model dir
-    parser.add_argument('--model_dir', type=str, default="./best_model")
-    args = parser.parse_args()
-    print(args)
-    main(args)
+    main()

@@ -262,6 +262,8 @@ best_model/
 .gitconfig
 results/
 wandb/
+inferences/
+*.csv
 
 *.ipynb
 .git-credentials

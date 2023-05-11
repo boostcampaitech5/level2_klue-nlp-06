@@ -102,6 +102,6 @@ def punc_typed_preprocessing_dataset(dataset):
 def load_data(dataset_dir):
     """ csv 파일을 경로에 맡게 불러 옵니다. """
     pd_dataset = pd.read_csv(dataset_dir)
-    dataset = punc_typed_preprocessing_dataset(pd_dataset) # 해당 부분을 변경하여 원하는 preprocessing 함수를 적용한 dataset 을 얻을 수 있습니다.
+    dataset = preprocessing_dataset(pd_dataset) # 해당 부분을 변경하여 원하는 preprocessing 함수를 적용한 dataset 을 얻을 수 있습니다.
 
     return dataset

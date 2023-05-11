@@ -42,8 +42,8 @@ def train(CFG, save_path):
     dev_label = label_to_num(dev_dataset['label'].values)
 
     # tokenizing dataset
-    tokenized_train = tokenized_dataset(train_dataset, tokenizer)
-    tokenized_dev = tokenized_dataset(dev_dataset, tokenizer)
+    tokenized_train = tokenized_dataset_with_wordtype(train_dataset, tokenizer)
+    tokenized_dev = tokenized_dataset_with_wordtype(dev_dataset, tokenizer)
 
     # make dataset for pytorch.
     RE_train_dataset = RE_Dataset(tokenized_train, train_label)
@@ -60,6 +60,7 @@ def train(CFG, save_path):
         MODEL_NAME, config=model_config)
     print(model.config)
     model.parameters
+    model.resize_token_embeddings(len(tokenizer))
     model.to(device)
 
     # 사용한 option 외에도 다양한 option들이 있습니다.

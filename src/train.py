@@ -1,9 +1,5 @@
-import sys_setting
 import os
-from metric import *
-from preprocessing import *
-from tokenizing import *
-from load_data import *
+from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
 
 import torch
@@ -17,27 +13,15 @@ wandb login
 import wandb
 import datetime
 import shutil
-
+import yaml
 
 set_seed(10)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
-tz = datetime.timezone(datetime.timedelta(hours=9))
-day_time = datetime.datetime.now(tz=tz)
-run_name = day_time.strftime('%m%d%H%M%S')
-
-dir_path = f'./results/{run_name}'
-dir_path_log = f'./results/{run_name}/log'
-if not os.path.exists(dir_path):
-    os.makedirs(dir_path)
-if not os.path.exists(dir_path_log):
-    os.makedirs(dir_path_log)
-
-
 def label_to_num(label):
     num_label = []
-    with open('code/dict_label_to_num.pkl', 'rb') as f:
+    with open('./src/dict_label_to_num.pkl', 'rb') as f:
         dict_label_to_num = pickle.load(f)
     for v in label:
         num_label.append(dict_label_to_num[v])
@@ -45,10 +29,9 @@ def label_to_num(label):
     return num_label
 
 
-def train():
+def train(CFG, save_path):
     # load model and tokenizer
-    # MODEL_NAME = "bert-base-uncased"
-    MODEL_NAME = "klue/bert-base"
+    MODEL_NAME = CFG.model.model_name
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     # load dataset
@@ -82,30 +65,32 @@ def train():
     # 사용한 option 외에도 다양한 option들이 있습니다.
     # https://huggingface.co/transformers/main_classes/trainer.html#trainingarguments 참고해주세요.
     training_args = TrainingArguments(
-        output_dir=f'./results/{run_name}',         # output directory
+        output_dir=save_path,         # output directory
+        # output_dir = utils.make_run_name
         save_total_limit=5,             # number of total save model.
-        save_steps=1500,                # model saving step.
-        num_train_epochs=10,            # total number of training epochs
-        learning_rate=5e-5,             # learning_rate
-        per_device_train_batch_size=16, # batch size per device during training
-        per_device_eval_batch_size=16,  # batch size for evaluation
+        save_steps=CFG.train.save_steps,                # model saving step.
+        num_train_epochs=CFG.train.epochs,            # total number of training epochs
+        learning_rate=CFG.train.LR,             # learning_rate
+        per_device_train_batch_size=CFG.train.batch_size, # batch size per device during training
+        per_device_eval_batch_size=CFG.train.batch_size,  # batch size for evaluation
         warmup_steps=500,               # number of warmup steps for learning rate scheduler
         weight_decay=0.01,              # strength of weight decay
-        logging_dir=f'./results/{run_name}/logs',   # directory for storing logs
+        logging_dir=f'{save_path}/logs',   # directory for storing logs
         logging_steps=100,              # log saving step.
         evaluation_strategy='steps',    # evaluation strategy to adopt during training
         # `no`: No evaluation during training.
         # `steps`: Evaluate every `eval_steps`.
         # `epoch`: Evaluate every end of epoch.
-        eval_steps=500,         # evaluation step.
+        eval_steps=CFG.train.eval_steps,         # evaluation step.
         load_best_model_at_end=True,
+        metric_for_best_model='micro f1 score',
 
         # wandb loggging 추가
         report_to="wandb",  # enable logging to W&B
     )
 
     # For wandb
-    wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=run_name)
+    wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=save_path[10:])
     trainer = Trainer(
         # the instantiated 🤗 Transformers model to be trained
         model=model,
@@ -116,15 +101,14 @@ def train():
     )
     # train model
     trainer.train()
-    model.save_pretrained(f'./results/{run_name}/best_model')
+    model.save_pretrained(f'{save_path}/best_model')
 
     wandb.finish()
 
 
-def main():
-    train()
+def main(CFG, save_path):
+    train(CFG, save_path)
     shutil.rmtree('./wandb')
-
 
 if __name__ == '__main__':
     main()

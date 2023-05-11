@@ -102,7 +102,6 @@ def main(CFG, run_type, save_path):
     tokenizer = AutoTokenizer.from_pretrained(Tokenizer_NAME)
 
     # load my model
-<<<<<<< HEAD:src/inference.py
     model_name = CFG.inference.run_name   # 모델 이름 config 파일에서 불러오기
     if run_type == "both":
         model_dir = f"{save_path}/best_model"
@@ -114,10 +113,6 @@ def main(CFG, run_type, save_path):
         
     print("Inference model path :", model_dir)
     model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-=======
-    MODEL_NAME = args.model_dir  # model dir.
-    model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME)
->>>>>>> Submain:code/inference.py
     model.parameters
     model.to(device)
 
@@ -142,30 +137,15 @@ def main(CFG, run_type, save_path):
     output = pd.DataFrame(
         {'id': test_id, 'pred_label': pred_answer, 'probs': output_prob, })
 
-<<<<<<< HEAD:src/inference.py
     # 최종적으로 완성된 예측한 라벨 csv 파일 형태로 저장
     if run_type == "both":
         output.to_csv(f'{save_path}/submission.csv', index=False)
     else:
         output.to_csv(f'{model_dir}/submission.csv', index=False)
 
-=======
-    # 최종적으로 완성된 예측한 라벨 csv 파일 형태로 저
-    output.to_csv('./data/prediction/0509080834_checkpoint-2500.csv', index=False)
->>>>>>> Submain:code/inference.py
     #### 필수!! ##############################################
     print('---- Finish! ----')
 
 
 if __name__ == '__main__':
-<<<<<<< HEAD:src/inference.py
     main()
-=======
-    parser = argparse.ArgumentParser()
-
-    # model dir
-    parser.add_argument('--model_dir', type=str, default="./results/0509080834/checkpoint-2500")
-    args = parser.parse_args()
-    print(args)
-    main(args)
->>>>>>> Submain:code/inference.py

@@ -84,15 +84,19 @@ def punc_typed_preprocessing_dataset(dataset):
         sentences.append(sentence)
     dataset.drop(columns='sentence', inplace=True)
     dataset['sentence'] = sentences
-    
+
     return dataset
 
 def load_data(dataset_dir, ppc_mode):
     """ csv 파일을 경로에 맡게 불러 옵니다. """
     pd_dataset = pd.read_csv(dataset_dir)
+    breakpoint()
     dataset = default_preprocessing(pd_dataset)
-    dataset = globals()[ppc_mode](pd_dataset)
-    # dataset을 사용하여 원하는 preprocessing 함수를 적용할 수 있습니다.
-    ### 여기에 원하는 preprocessing 함수를 나열 해 주세요 ###
     
+    # dataset을 사용하여 원하는 preprocessing 함수를 적용할 수 있습니다.
+    ### config 파일에 원하는 preprocessing 함수를 나열 해 주세요 ###
+    # DA/ DC 적용 코드
+
+    ### config 파일에 원하는 preprocessing_dataset 함수를 입력 해 주세요 ###
+    dataset = globals()[ppc_mode](dataset)
     return dataset

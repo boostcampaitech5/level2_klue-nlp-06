@@ -35,15 +35,17 @@ def train(CFG, save_path):
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     # load dataset
-    train_dataset = load_data("./data/train/train.csv")
-    dev_dataset = load_data("./data/train/dev.csv")
+    print(f'preprocessing mode: {CFG.data.pre_dataset}')
+    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset)
+    dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset)
 
     train_label = label_to_num(train_dataset['label'].values)
     dev_label = label_to_num(dev_dataset['label'].values)
 
     # tokenizing dataset
-    tokenized_train = tokenized_dataset(train_dataset, tokenizer)
-    tokenized_dev = tokenized_dataset(dev_dataset, tokenizer)
+    print(f'tokenizing mode: {CFG.data.tokenizer.tokenizing}')
+    tokenized_train = globals()[CFG.data.tokenizer.tokenizing](train_dataset, tokenizer, CFG.data.tokenizer.max_len)
+    tokenized_dev = globals()[CFG.data.tokenizer.tokenizing](dev_dataset, tokenizer, CFG.data.tokenizer.max_len)
 
     # make dataset for pytorch.
     RE_train_dataset = RE_Dataset(tokenized_train, train_label)

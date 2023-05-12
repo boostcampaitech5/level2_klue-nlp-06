@@ -87,15 +87,53 @@ def punc_typed_preprocessing_dataset(dataset):
 
     return dataset
 
-def load_data(dataset_dir, ppc_mode):
+def source_add(dataset):
+    """ 
+    preprocessing 함수
+    sentence 에 source 정보를 추가합니다.
+
+    Ex) 
+    """
+    sentences = []
+    for i, (src, s) in enumerate(zip(dataset['source'], dataset['sentence'])):
+        sentence = '['+src+']'+s
+        sentences.append(sentence)
+        dataset['subject_begin'].iloc[i] = dataset['subject_begin'].iloc[i]+len('['+src+']')
+        dataset['object_begin'].iloc[i] = dataset['object_begin'].iloc[i]+len('['+src+']')
+        dataset['subject_end'].iloc[i] = dataset['subject_end'].iloc[i]+len('['+src+']')
+        dataset['object_end'].iloc[i] = dataset['object_end'].iloc[i]+len('['+src+']')
+        
+    dataset.drop(columns='sentence', inplace=True)
+    dataset['sentence'] = sentences
+
+    return dataset
+
+def load_data(dataset_dir, ppc_mode, ppc_list):
     """ csv 파일을 경로에 맡게 불러 옵니다. """
     pd_dataset = pd.read_csv(dataset_dir)
     dataset = default_preprocessing(pd_dataset)
-    
     # dataset을 사용하여 원하는 preprocessing 함수를 적용할 수 있습니다.
     ### config 파일에 원하는 preprocessing 함수를 나열 해 주세요 ###
     # DA/ DC 적용 코드
-
+    
     ### config 파일에 원하는 preprocessing_dataset 함수를 입력 해 주세요 ###
-    dataset = globals()[ppc_mode](dataset)
+    if ppc_list and ppc_list[0]:
+        '''
+        config.yaml 파일이
+        -------------------------------------------------
+        data:
+            preprocessing: #실행시키고자 하는 전처리 함수들 입력.
+                -
+        -------------------------------------------------
+        위의 형태로 되어 있으면 ppc_list 는 [None] 입니다.
+        if ppc_list[0] 는 이러한 형태일 때 preprocessing 을 실행하지 않기 위해서 만든 조건입니다.
+        '''
+        for preprocessing in ppc_list:
+            dataset = globals()[preprocessing](dataset)
+
+    if ppc_mode:
+        '''
+        config.yaml 파일의 pre_dataset 에 따로 지정한 값이 없을 경우 default_preprocessing 만 실행 합니다.
+        '''
+        dataset = globals()[ppc_mode](dataset)
     return dataset

@@ -16,6 +16,18 @@ def tokenized_dataset(dataset, tokenizer, max_len):
     )
     return tokenized_sentences
 
+def tokenized_dataset_without_concat_entity(dataset, tokenizer, max_len):
+    """ tokenizer에 따라 sentence를 tokenizing 합니다."""
+    
+    tokenized_sentences = tokenizer(
+        list(dataset['sentence']),
+        return_tensors="pt",
+        padding=True,
+        truncation=True,
+        max_length=max_len,
+        add_special_tokens=True,
+    )
+    return tokenized_sentences
 
 def tokenized_dataset_with_wordtype(df, tokenizer, max_len):
     """ tokenizer에 따라 sentence를 tokenizing 합니다."""

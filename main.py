@@ -9,12 +9,13 @@ if __name__ == "__main__":
     # run type 설정
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--run_type', type=str, default="both")
+    parser.add_argument('-c', '--config_name', type=str, default='config')
     args = parser.parse_args()
     run_type = args.run_type
     print("Run type : ", run_type)
 
     # config file
-    with open('./config.yaml') as f:
+    with open('./'+args.config_name+'.yaml') as f:
         CFG = yaml.load(f, Loader=yaml.FullLoader)
 
     # code 실행

@@ -35,15 +35,17 @@ def train(CFG, save_path):
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     # load dataset
-    print(f'preprocessing mode: {CFG.data.pre_dataset}')
-    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset)
-    dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset)
+    print('-- preprocessing')
+    print('\n'.join(['* '+str(p) for p in CFG.data.preprocessing]))
+    print('-- preprocessing dataset')
+    print('* '+str(CFG.data.pre_dataset),'\n')
+    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset, CFG.data.preprocessing)
+    dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset, CFG.data.preprocessing)
 
     train_label = label_to_num(train_dataset['label'].values)
     dev_label = label_to_num(dev_dataset['label'].values)
 
     # tokenizing dataset
-    print(f'tokenizing mode: {CFG.data.tokenizer.tokenizing}')
     tokenized_train = globals()[CFG.data.tokenizer.tokenizing](train_dataset, tokenizer, CFG.data.tokenizer.max_len)
     tokenized_dev = globals()[CFG.data.tokenizer.tokenizing](dev_dataset, tokenizer, CFG.data.tokenizer.max_len)
 

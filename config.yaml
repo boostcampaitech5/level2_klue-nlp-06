@@ -9,7 +9,6 @@ data:
     max_len: 256
 model:
   model_name: klue/bert-base
-  max_len: 256
 train:
   batch_size: 16
   epochs: 5

@@ -261,6 +261,9 @@ best_model/
 .netrc
 .gitconfig
 results/
+wandb/
+inferences/
+*.csv
 
 *.ipynb
 .git-credentials

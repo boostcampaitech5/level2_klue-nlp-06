@@ -1,4 +1,4 @@
-def tokenized_dataset(dataset, tokenizer):
+def tokenized_dataset(dataset, tokenizer, max_len):
     """ tokenizer에 따라 sentence를 tokenizing 합니다."""
     concat_entity = []
     for e01, e02 in zip(dataset['subject_entity'], dataset['object_entity']):
@@ -11,13 +11,13 @@ def tokenized_dataset(dataset, tokenizer):
         return_tensors="pt",
         padding=True,
         truncation=True,
-        max_length=256,
+        max_length=max_len,
         add_special_tokens=True,
     )
     return tokenized_sentences
 
 
-def tokenized_dataset_with_wordtype(df, tokenizer):
+def tokenized_dataset_with_wordtype(df, tokenizer, max_len):
     """ tokenizer에 따라 sentence를 tokenizing 합니다."""
     sents = []
     
@@ -55,7 +55,7 @@ def tokenized_dataset_with_wordtype(df, tokenizer):
         return_tensors="pt",
         padding=True,
         truncation=True,
-        max_length=256,
+        max_length=max_len,
         add_special_tokens=True,
     )
     

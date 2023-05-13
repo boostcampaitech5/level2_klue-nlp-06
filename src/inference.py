@@ -51,35 +51,35 @@ def num_to_label(label):
     return origin_label
 
 
-def load_test_dataset(dataset_dir, tokenizer):
+def load_test_dataset(dataset_dir, tokenizer, CFG):
     """
       test dataset을 불러온 후,
       tokenizing 합니다.
     """
-    test_dataset = load_data(dataset_dir)
+    test_dataset = load_data(dataset_dir, CFG.data.pre_dataset, CFG.data.preprocessing)
     test_label = list(map(int, test_dataset['label'].values))
     # tokenizing dataset
-    tokenized_test = tokenized_dataset(test_dataset, tokenizer)
+    tokenized_test = globals()[CFG.data.tokenizer.tokenizing](test_dataset, tokenizer, CFG.data.tokenizer.max_len)
     return test_dataset['id'], tokenized_test, test_label
 
-def load_dev_dataset(dataset_dir, tokenizer):
+def load_dev_dataset(dataset_dir, tokenizer, CFG):
     """
       test dataset을 불러온 후,
       tokenizing 합니다.
     """
-    test_dataset = load_data(dataset_dir)
+    test_dataset = load_data(dataset_dir, CFG.data.pre_dataset, CFG.data.preprocessing)
     test_dataset['label'] = 100
     test_label = list(map(int, test_dataset['label'].values))
     # tokenizing dataset
-    tokenized_test = tokenized_dataset(test_dataset, tokenizer)
+    tokenized_test =  globals()[CFG.data.tokenizer.tokenizing](test_dataset, tokenizer, CFG.data.tokenizer.max_len)
     return test_dataset['id'], tokenized_test, test_label
 
-def save_prediction(model, dev_dir, device, tokenizer, save_path):
+def save_prediction(model, dev_dir, device, tokenizer, save_path, CFG):
     """
     dev data의 예측값 반환 후 저장하는 함수.
     """
 
-    dev_id, dev_dataset, dev_label = load_dev_dataset(dev_dir, tokenizer)
+    dev_id, dev_dataset, dev_label = load_dev_dataset(dev_dir, tokenizer, CFG)
     Re_dev_dataset = RE_Dataset(dev_dataset, dev_label)
     pred_dev_answer, output_dev_prob = inference(model, Re_dev_dataset, device)
     pred_dev_answer = num_to_label(pred_dev_answer)
@@ -118,12 +118,12 @@ def main(CFG, run_type, save_path):
 
     get_dev_prediction = CFG.inference.get_dev_pred # dev prediction 파일 만들지 말지 결정하는 변수. config에서 불러오기.
     if get_dev_prediction==True:
-        save_prediction(model, './data/train/dev.csv', device, tokenizer, model_dir)
+        save_prediction(model, './data/train/dev.csv', device, tokenizer, model_dir, CFG)
 
     # load test datset
     test_dataset_dir = "./data/test/test_data.csv"
     test_id, test_dataset, test_label = load_test_dataset(
-        test_dataset_dir, tokenizer)
+        test_dataset_dir, tokenizer, CFG)
     Re_test_dataset = RE_Dataset(test_dataset, test_label)
 
     # predict answer

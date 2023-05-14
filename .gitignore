@@ -267,3 +267,5 @@ inferences/
 
 *.ipynb
 .git-credentials
+
+.screenrc

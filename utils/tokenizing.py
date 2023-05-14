@@ -60,3 +60,45 @@ def tokenized_dataset_with_wordtype(df, tokenizer, max_len):
     )
     
     return tokenized_sentences
+
+
+def tokenized_dataset_with_entity_marker(df, tokenizer):
+    """ tokenizer에 따라 sentence를 tokenizing 합니다."""
+    sents = []
+    
+    for idx, row in df.iterrows():
+        sent = ''
+        s_st = row['subject_begin']
+        s_end = row['subject_end']
+        o_st = row['object_begin']
+        o_end = row['object_end']
+    
+        if s_st < o_st:
+            sent = row['sentence']
+            sent = sent[:s_st] + '[' +'SUB' + ']' + sent[s_st:]
+            sent = sent[:s_end+7] + '[/' +'SUB' + ']' + sent[s_end+7:]
+            sent = sent[:o_st+13] + '[' +'OBJ' + ']' + sent[o_st+13:]
+            sent = sent[:o_end+20] + '[/' +'OBJ' + ']' + sent[o_end+20:]
+        else :
+            sent = row['sentence']
+            sent = sent[:o_st] + '[' +'OBJ' + ']' + sent[o_st:]
+            sent = sent[:o_end+7] + '[/' +'OBJ' + ']' + sent[o_end+7:]
+            sent = sent[:s_st+13] + '[' +'SUB' + ']' + sent[s_st+13:]
+            sent = sent[:s_end+20] + '[/' +'SUB' + ']' + sent[s_end+20:]
+        
+        sents.append(sent)
+    
+    tokens = ['[SUB]','[/SUB]','[OBJ]','[/OBJ]']
+    
+    tokenizer.add_tokens(tokens,special_tokens=True)
+    
+    tokenized_sentences = tokenizer(
+        sents,
+        return_tensors="pt",
+        padding=True,
+        truncation=True,
+        max_length=256,
+        add_special_tokens=True,
+    )
+    
+    return tokenized_sentences

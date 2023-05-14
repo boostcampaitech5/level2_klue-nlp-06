@@ -1,9 +1,11 @@
 import os
 from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
+from src.CustomBertModel import CustomBertForSequenceClassification
 
 import torch
 import pickle as pickle
+from collections import Counter
 # For wandb setting
 '''
 terminal 에서,
@@ -58,9 +60,14 @@ def train(CFG, save_path):
     model_config = AutoConfig.from_pretrained(MODEL_NAME)
     model_config.num_labels = 30
 
-    model = AutoModelForSequenceClassification.from_pretrained(
+    model = CustomBertForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
     print(model.config)
+    
+    # focal loss를 위한 weight 입력
+    samples_per_class = [v for (k, v) in sorted(Counter(train_label).items())]
+    model.add_samples_per_class(samples_per_class)
+    
     model.parameters
     model.resize_token_embeddings(len(tokenizer))
     model.to(device)

@@ -56,7 +56,7 @@ def load_test_dataset(dataset_dir, tokenizer, CFG):
       test dataset을 불러온 후,
       tokenizing 합니다.
     """
-    test_dataset = load_data(dataset_dir, CFG.data.pre_dataset, CFG.data.preprocessing)
+    test_dataset = load_data(dataset_dir, CFG.data.pre_dataset)
     test_label = list(map(int, test_dataset['label'].values))
     # tokenizing dataset
     tokenized_test = globals()[CFG.data.tokenizer.tokenizing](test_dataset, tokenizer, CFG.data.tokenizer.max_len)
@@ -67,7 +67,7 @@ def load_dev_dataset(dataset_dir, tokenizer, CFG):
       test dataset을 불러온 후,
       tokenizing 합니다.
     """
-    test_dataset = load_data(dataset_dir, CFG.data.pre_dataset, CFG.data.preprocessing)
+    test_dataset = load_data(dataset_dir, CFG.data.pre_dataset)
     test_dataset['label'] = 100
     test_label = list(map(int, test_dataset['label'].values))
     # tokenizing dataset

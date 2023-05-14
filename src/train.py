@@ -1,6 +1,7 @@
 import os
 from utils import *
-from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
+from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed, EarlyStoppingCallback
+from .custom_trainer import CustomTrainer
 
 import torch
 import pickle as pickle
@@ -102,6 +103,12 @@ def train(CFG, save_path):
         eval_dataset=RE_dev_dataset,        # evaluation dataset
         compute_metrics=compute_metrics     # define metrics function
     )
+
+    # Add callbacks
+    if CFG.train.early_stop > 0:
+        early_stop = EarlyStoppingCallback(early_stopping_patience=CFG.train.early_stop)
+        trainer.callbacks.append(early_stop)
+
     # train model
     trainer.train()
     model.save_pretrained(f'{save_path}/best_model')

@@ -296,13 +296,22 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
         self.num_labels = config.num_labels
         self.config = config
 
-        self.bert = CustomBertModel(config)
+        self.bert = BertModel(config)
+
+        # 기존의 RE task를 위한 logits를 다루기 위한 classifier
         classifier_dropout = (
             config.classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
         self.dropout = nn.Dropout(classifier_dropout)
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
+        # no_relation을 구분하는 이진 분류를 위한 classifier
+        binary_classifier_dropout = (
+            config.binary_classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
+        )
+        self.binary_dropout = nn.Dropout(binary_classifier_dropout)
+        self.binary_classifier = nn.Linear(config.hidden_size, 2)
+        
         self.init_weights()
 
 
@@ -346,10 +355,16 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
             return_dict=return_dict,
         )
 
+        # 기존의 RE 태스크를 위한 logits
         pooled_output = outputs[1]
 
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
+        
+        # no_relation을 구분하는 이진 분류를 위한 logits
+        last_hidden_state = outputs[0]
+        last_hidden_state = self.binary_dropout(last_hidden_state)
+        binary_logits = self.binary_classifier(last_hidden_state)
 
         # Loss function 결정 및 loss 계산
         loss = None
@@ -385,9 +400,25 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
         if not return_dict:
             output = (logits,) + outputs[2:]
             return ((loss,) + output) if loss is not None else output
+        
+        # binary classification을 위한 label 정의와 loss 계산
+        binary_labels = [0 for _ in range(len(labels))]
+        relation_cnt = 0
+        for idx, label in enumerate(labels):
+            if label != 0:
+                binary_labels[idx] = 1
+                relation_cnt += 1
+        binary_labels = torch.Tensor(binary_labels).to(device=self.device).long()
+        
+        binary_loss_fct = Loss(
+            loss_type="focal_loss",
+            samples_per_class=[len(labels)-relation_cnt, relation_cnt],
+            class_balanced=True
+        )
+        binary_loss = binary_loss_fct(binary_logits.view(-1, self.num_labels), binary_labels.view(-1))
 
         return SequenceClassifierOutput(
-            loss=loss,
+            loss=loss+binary_loss,
             logits=logits,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,

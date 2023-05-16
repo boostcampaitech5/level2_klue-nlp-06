@@ -1,4 +1,5 @@
 import pandas as pd
+import yaml
 
 
 def default_preprocessing(dataset):
@@ -71,6 +72,21 @@ def punc_typed_preprocessing_dataset(dataset):
 
     return dataset
 
+def swap_entities(dataset):
+    target_label = ['org:alternate_names', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues']
+
+    target = dataset.loc[dataset['label'].isin(target_label)]
+    non_target = dataset.loc[~dataset['label'].isin(target_label)]
+
+    target['subject_entity_type'], target['object_entity_type'] = target['object_entity_type'], target['subject_entity_type']
+    target['subject_begin'], target['object_begin'] = target['object_begin'], target['subject_begin']
+    target['subject_end'], target['object_end'] = target['object_begin'], target['subject_end']
+    target['subject_entity'], target['object_entity'] = target['object_entity'], target['subject_entity']
+
+    swapped = pd.concat([target, non_target])
+
+    return swapped
+
 def load_data(dataset_dir, ppc_mode):
     """ csv 파일을 경로에 맡게 불러 옵니다. """
     pd_dataset = pd.read_csv(dataset_dir)
@@ -79,7 +95,25 @@ def load_data(dataset_dir, ppc_mode):
     # dataset을 사용하여 원하는 preprocessing 함수를 적용할 수 있습니다.
     ### config 파일에 원하는 preprocessing 함수를 나열 해 주세요 ###
     # DA/ DC 적용 코드
+    print(ppc_mode)
+
+    # for func in ppc_mode.preprocessing:
+    #     new_dataset = globals()[func](dataset)
+    #     dataset = pd.concat([dataset, new_dataset])
+    # swap = swap_entities(dataset)
+    # dataset = pd.concat([dataset, swap])
 
     ### config 파일에 원하는 preprocessing_dataset 함수를 입력 해 주세요 ###
-    dataset = globals()[ppc_mode](dataset)
+    # dataset = globals()[ppc_mode.pre_dataset](dataset)
+    # dataset = 
     return dataset
+
+if __name__ == "__main__":
+    path = "./data/train/dev.csv"
+
+    with open('./config.yaml') as f:
+        CFG = yaml.load(f, Loader=yaml.FullLoader)
+    prep = CFG['data']['preprocessing']
+    print(prep)
+
+    data = load_data(path, prep)

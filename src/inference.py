@@ -124,7 +124,6 @@ def main(CFG, run_type, save_path):
     model.parameters
     model.to(device)
     print(model.config)
-    print('samples_per_class: ', model.get_samples_per_class())
 
     # predict dev and save
     get_dev_prediction = CFG.inference.get_dev_pred # dev prediction 파일 만들지 말지 결정하는 변수. config에서 불러오기.

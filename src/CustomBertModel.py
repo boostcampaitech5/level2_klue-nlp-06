@@ -304,17 +304,6 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         self.init_weights()
-        
-        self.samples_per_class = None
-
-
-    # Focal loss를 위한 클래스별 분포 입력
-    def add_samples_per_class(self, samples_per_class):
-        self.samples_per_class = samples_per_class
-
-    
-    def get_samples_per_class(self):
-        return self.samples_per_class
 
 
     @add_start_docstrings_to_model_forward(BERT_INPUTS_DOCSTRING.format("batch_size, sequence_length"))
@@ -385,7 +374,7 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
                 # loss_fct = CrossEntropyLoss()
                 loss_fct = Loss(
                     loss_type="focal_loss",
-                    samples_per_class=self.samples_per_class,
+                    samples_per_class=self.config.samples_per_class,
                     class_balanced=True
                 )
                 loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))

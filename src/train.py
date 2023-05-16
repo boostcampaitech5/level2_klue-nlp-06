@@ -59,21 +59,22 @@ def train(CFG, save_path):
     # setting model hyperparameter
     model_config = AutoConfig.from_pretrained(MODEL_NAME)
     model_config.num_labels = 30
+    
+    # entity embedding을 위한 entity 개수 입력
     model_config.num_entity = 9
 
+    # focal loss를 위한 weight 입력
+    samples_per_class = [v for (k, v) in sorted(Counter(train_label).items())]
+    model_config.samples_per_class = samples_per_class
+    
     # model = AutoModelForSequenceClassification.from_pretrained(
     model = CustomBertForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
-    
-    # focal loss를 위한 weight 입력
-    samples_per_class = [v for (k, v) in sorted(Counter(train_label).items())]
-    model.add_samples_per_class(samples_per_class)
     
     model.parameters
     model.resize_token_embeddings(len(tokenizer))
     model.to(device)
     print(model.config)
-    print('samples_per_class: ', model.get_samples_per_class())
 
     # 사용한 option 외에도 다양한 option들이 있습니다.
     # https://huggingface.co/transformers/main_classes/trainer.html#trainingarguments 참고해주세요.

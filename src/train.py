@@ -1,6 +1,7 @@
 import os
 from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
+from src.custom_model import CustomBertForSequenceClassification
 
 import torch
 import pickle as pickle
@@ -58,9 +59,12 @@ def train(CFG, save_path):
     model_config = AutoConfig.from_pretrained(MODEL_NAME)
     model_config.num_labels = 30
 
-    model = AutoModelForSequenceClassification.from_pretrained(
+    # model = AutoModelForSequenceClassification.from_pretrained(
+    #     MODEL_NAME, config=model_config)
+    model = CustomBertForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
     print(model.config)
+    # breakpoint()
     model.parameters
     model.resize_token_embeddings(len(tokenizer))
     model.to(device)

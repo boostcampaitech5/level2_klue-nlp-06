@@ -1,17 +1,16 @@
-admin: JH #실험자 이름.
+admin: SE #실험자 이름.
 data:
   preprocessing: #실행시키고자 하는 전처리 함수들 입력.
-    - translate
-    - 특수문자제거
-  pre_dataset: punc_preprocessing_dataset #preprocessing.py 에서 dataset 관련하여 실행하고자 하는 함수 명
+    - 
+  pre_dataset: default_preprocessing #preprocessing.py 에서 dataset 관련하여 실행하고자 하는 함수 명
   tokenizer:
-    tokenizing: tokenized_dataset #tokenizing.py 에서 실행하고자 하는 함수 명
+    tokenizing: entity_tokens #tokenizing.py 에서 실행하고자 하는 함수 명
     max_len: 256
 model:
   model_name: klue/bert-base
 train:
   batch_size: 16
-  epochs: 5
+  epochs: 10
   LR: 0.00005
   save_steps: 1500
   eval_steps: 500

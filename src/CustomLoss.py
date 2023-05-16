@@ -35,7 +35,7 @@ def focal_loss(logits, labels, alpha=None, gamma=2):
     focal_loss /= torch.sum(labels)
     return focal_loss
 
-
+# 사용 방법: https://github.com/fcakyon/balanced-loss
 class Loss(torch.nn.Module):
     def __init__(
         self,

@@ -62,7 +62,7 @@ def tokenized_dataset_with_wordtype(df, tokenizer, max_len):
     return tokenized_sentences
 
 
-def tokenized_dataset_with_entity_marker(df, tokenizer):
+def tokenized_dataset_with_entity_marker(df, tokenizer, max_len):
     """ tokenizer에 따라 sentence를 tokenizing 합니다."""
     sents = []
     
@@ -97,7 +97,7 @@ def tokenized_dataset_with_entity_marker(df, tokenizer):
         return_tensors="pt",
         padding=True,
         truncation=True,
-        max_length=256,
+        max_length=max_len,
         add_special_tokens=True,
     )
     

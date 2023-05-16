@@ -14,6 +14,7 @@ import wandb
 import datetime
 import shutil
 import yaml
+from src.custom_clf_entity import Custom_ModelForSequenceClassification
 
 set_seed(10)
 torch.backends.cudnn.deterministic = True
@@ -59,12 +60,16 @@ def train(CFG, save_path):
     # setting model hyperparameter
     model_config = AutoConfig.from_pretrained(MODEL_NAME)
     model_config.num_labels = 30
+    # model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, config=model_config)
+    
+    # custom model
+    model = Custom_ModelForSequenceClassification.from_pretrained(MODEL_NAME, config = model_config)
+    model.tokenizer = tokenizer
 
-    model = AutoModelForSequenceClassification.from_pretrained(
-        MODEL_NAME, config=model_config)
     print(model.config)
     model.parameters
-    model.resize_token_embeddings(len(tokenizer))
+    
+    # model.model.resize_token_embeddings(len(tokenizer))
     model.to(device)
 
     # 사용한 option 외에도 다양한 option들이 있습니다.
@@ -72,7 +77,7 @@ def train(CFG, save_path):
     training_args = TrainingArguments(
         output_dir=save_path,         # output directory
         # output_dir = utils.make_run_name
-        save_total_limit=5,             # number of total save model.
+        save_total_limit=2,             # number of total save model.
         save_steps=CFG.train.save_steps,                # model saving step.
         num_train_epochs=CFG.train.epochs,            # total number of training epochs
         learning_rate=CFG.train.LR,             # learning_rate

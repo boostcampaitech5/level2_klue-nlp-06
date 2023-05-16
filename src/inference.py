@@ -9,7 +9,8 @@ import pickle as pickle
 import numpy as np
 import argparse
 from tqdm import tqdm
-
+from src.custom_clf_entity import Custom_ModelForSequenceClassification
+from transformers import AutoConfig
 
 def inference(model, tokenized_sent, device):
     """
@@ -112,7 +113,12 @@ def main(CFG, run_type, save_path):
             model_dir = f"./results/{model_name}/checkpoint-{CFG.inference.ckpt}"
         
     print("Inference model path :", model_dir)
-    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    # model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+
+    # custom model
+    model = Custom_ModelForSequenceClassification.from_pretrained(model_dir)
+    model.tokenizer = tokenizer
+    
     model.parameters
     model.to(device)
 

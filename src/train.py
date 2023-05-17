@@ -63,6 +63,7 @@ def train(CFG, save_path):
     #     MODEL_NAME, config=model_config)
     model = CustomBertForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
+    model.tokenizer = tokenizer
     print(model.config)
     # breakpoint()
     model.parameters
@@ -74,7 +75,7 @@ def train(CFG, save_path):
     training_args = TrainingArguments(
         output_dir=save_path,         # output directory
         # output_dir = utils.make_run_name
-        save_total_limit=5,             # number of total save model.
+        save_total_limit=2,             # number of total save model.
         save_steps=CFG.train.save_steps,                # model saving step.
         num_train_epochs=CFG.train.epochs,            # total number of training epochs
         learning_rate=CFG.train.LR,             # learning_rate
@@ -97,7 +98,7 @@ def train(CFG, save_path):
     )
 
     # For wandb
-    wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=save_path[10:])
+    wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=save_path[10:], entity='sekim520')
     trainer = Trainer(
         # the instantiated 🤗 Transformers model to be trained
         model=model,

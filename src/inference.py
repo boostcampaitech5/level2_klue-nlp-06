@@ -1,6 +1,7 @@
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments
 from torch.utils.data import DataLoader
 from utils import *
+from src.custom_model import CustomBertForSequenceClassification
 import pandas as pd
 import torch
 import torch.nn.functional as F
@@ -112,7 +113,10 @@ def main(CFG, run_type, save_path):
             model_dir = f"./results/{model_name}/checkpoint-{CFG.inference.ckpt}"
         
     print("Inference model path :", model_dir)
-    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    # model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    
+    model = CustomBertForSequenceClassification.from_pretrained(model_dir)
+    model.tokenizer = tokenizer
     model.parameters
     model.to(device)
 

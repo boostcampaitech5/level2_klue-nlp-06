@@ -1,4 +1,5 @@
 import pandas as pd
+import yaml
 
 
 def default_preprocessing(dataset):
@@ -72,7 +73,7 @@ def punc_typed_preprocessing_dataset(dataset):
     return dataset
 
 def swap_entities(dataset):
-    target_label = ['org:alternate_names', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues']
+    target_label = ['per:date_of_birth', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues', 'per:origin']
 
     target = dataset.loc[dataset['label'].isin(target_label)]
     non_target = dataset.loc[~dataset['label'].isin(target_label)]
@@ -94,7 +95,22 @@ def load_data(dataset_dir, ppc_mode):
     # dataset을 사용하여 원하는 preprocessing 함수를 적용할 수 있습니다.
     ### config 파일에 원하는 preprocessing 함수를 나열 해 주세요 ###
     # DA/ DC 적용 코드
+    print(ppc_mode)
+
+    swap = swap_entities(dataset)
+    dataset = pd.concat([dataset, swap])
 
     ### config 파일에 원하는 preprocessing_dataset 함수를 입력 해 주세요 ###
     dataset = globals()[ppc_mode](dataset)
+    
     return dataset
+
+if __name__ == "__main__":
+    path = "./data/train/dev.csv"
+
+    with open('./config.yaml') as f:
+        CFG = yaml.load(f, Loader=yaml.FullLoader)
+    prep = CFG['data']['preprocessing']
+    print(prep)
+
+    data = load_data(path, prep)

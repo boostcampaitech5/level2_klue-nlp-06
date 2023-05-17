@@ -10,7 +10,7 @@ model:
   model_name: klue/bert-base
 train:
   batch_size: 16
-  epochs: 5
+  epochs: 10
   LR: 0.00005
   save_steps: 1500
   eval_steps: 500

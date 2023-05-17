@@ -14,8 +14,8 @@ import wandb
 import datetime
 import shutil
 import yaml
-from src.custom_clf_entity import Custom_ModelForSequenceClassification
-
+from src.bert_custom_clf import Custom_ModelForSequenceClassification
+from src.roberta_custom_clf import Custom_RobertaForSequenceClassification
 set_seed(10)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
@@ -63,7 +63,10 @@ def train(CFG, save_path):
     # model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, config=model_config)
     
     # custom model
-    model = Custom_ModelForSequenceClassification.from_pretrained(MODEL_NAME, config = model_config)
+    if MODEL_NAME.find('roberta')== -1:
+        model = Custom_ModelForSequenceClassification.from_pretrained(MODEL_NAME, config = model_config)
+    else:
+        model = Custom_RobertaForSequenceClassification.from_pretrained(MODEL_NAME, config = model_config)
     model.tokenizer = tokenizer
 
     print(model.config)
@@ -101,6 +104,7 @@ def train(CFG, save_path):
 
     # For wandb
     wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=save_path[10:])
+    breakpoint()
     trainer = Trainer(
         # the instantiated 🤗 Transformers model to be trained
         model=model,

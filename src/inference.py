@@ -9,7 +9,9 @@ import pickle as pickle
 import numpy as np
 import argparse
 from tqdm import tqdm
-from src.custom_clf_entity import Custom_ModelForSequenceClassification
+from src.bert_custom_clf import Custom_ModelForSequenceClassification
+from src.roberta_custom_clf import Custom_RobertaForSequenceClassification
+
 from transformers import AutoConfig
 
 def inference(model, tokenized_sent, device):
@@ -114,9 +116,11 @@ def main(CFG, run_type, save_path):
         
     print("Inference model path :", model_dir)
     # model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-
     # custom model
-    model = Custom_ModelForSequenceClassification.from_pretrained(model_dir)
+    if CFG.model.model_name.find('roberta')== -1:
+        model = Custom_ModelForSequenceClassification.from_pretrained(model_dir)
+    else:
+        model = Custom_RobertaForSequenceClassification.from_pretrained(model_dir)
     model.tokenizer = tokenizer
     
     model.parameters

@@ -91,6 +91,13 @@ def load_data(dataset_dir, ppc_mode):
     """ csv 파일을 경로에 맡게 불러 옵니다. """
     pd_dataset = pd.read_csv(dataset_dir)
     dataset = default_preprocessing(pd_dataset)
+
+    # Undersampling 진행.
+    if dataset_dir == './data/train/train_bal.csv':
+        dataset = pd.concat([dataset[dataset['label']!='no_relation'], dataset[dataset['label']=='no_relation'].sample(n=5000, random_state=42)])
+
+    # 중복 데이터 제거 (원하면 주석 풀고 사용하세요.)
+    # dataset = dataset[dataset.duplicated(['sentence'])==False][dataset['sentence']!='no_relation']
     
     # dataset을 사용하여 원하는 preprocessing 함수를 적용할 수 있습니다.
     ### config 파일에 원하는 preprocessing 함수를 나열 해 주세요 ###

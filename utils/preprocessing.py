@@ -73,7 +73,7 @@ def punc_typed_preprocessing_dataset(dataset):
     return dataset
 
 def swap_entities(dataset):
-    target_label = ['org:alternate_names', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues']
+    target_label = ['per:date_of_birth', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues', 'per:origin']
 
     target = dataset.loc[dataset['label'].isin(target_label)]
     non_target = dataset.loc[~dataset['label'].isin(target_label)]
@@ -100,8 +100,8 @@ def load_data(dataset_dir, ppc_mode):
     # for func in ppc_mode.preprocessing:
     #     new_dataset = globals()[func](dataset)
     #     dataset = pd.concat([dataset, new_dataset])
-    # swap = swap_entities(dataset)
-    # dataset = pd.concat([dataset, swap])
+    swap = swap_entities(dataset)
+    dataset = pd.concat([dataset, swap])
 
     ### config 파일에 원하는 preprocessing_dataset 함수를 입력 해 주세요 ###
     # dataset = globals()[ppc_mode.pre_dataset](dataset)

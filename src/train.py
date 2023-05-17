@@ -67,6 +67,12 @@ def train(CFG, save_path):
     samples_per_class = [v for (k, v) in sorted(Counter(train_label).items())]
     model_config.samples_per_class = samples_per_class
     
+    # sub task를 위한 sub task label 개수 및 sub task의 반영비 입력
+    model_config.num_sub_labels = 2
+    model_config.sub_task_weight = 0.5
+    sub_samples_per_class = [v for (k, v) in sorted(Counter([0 if label == 0 else 1 for label in train_label]).items())]
+    model_config.sub_samples_per_class = sub_samples_per_class
+    
     # model = AutoModelForSequenceClassification.from_pretrained(
     model = CustomBertForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)

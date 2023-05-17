@@ -90,9 +90,8 @@ class CustomBertEmbeddings(nn.Module):
             for i in range(obj_start, obj_end+1):
                 entity_input[i] = obj_emb
             entity_inputs.append(entity_input)
-        
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        entity_inputs = torch.Tensor(entity_inputs).to(device=device).long()
+
+        entity_inputs = torch.Tensor(entity_inputs).to(device=self.device).long()
         if entity_inputs is not None:
             entity_embeds = self.entity_embeddings(entity_inputs)
             embeddings += entity_embeds
@@ -306,11 +305,14 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
         self.classifier = nn.Linear(config.hidden_size, config.num_labels)
 
         # no_relation을 구분하는 이진 분류를 위한 classifier
+        self.num_sub_labels = config.num_sub_labels
+        
+        self.binary_pooler = BertPooler(config)
         binary_classifier_dropout = (
             config.binary_classifier_dropout if config.classifier_dropout is not None else config.hidden_dropout_prob
         )
         self.binary_dropout = nn.Dropout(binary_classifier_dropout)
-        self.binary_classifier = nn.Linear(config.hidden_size, 2)
+        self.binary_classifier = nn.Linear(config.hidden_size, self.num_sub_labels)
         
         self.init_weights()
 
@@ -363,8 +365,9 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
         
         # no_relation을 구분하는 이진 분류를 위한 logits
         last_hidden_state = outputs[0]
-        last_hidden_state = self.binary_dropout(last_hidden_state)
-        binary_logits = self.binary_classifier(last_hidden_state)
+        binary_pooled_output = self.binary_pooler(last_hidden_state)
+        binary_pooled_output = self.binary_dropout(binary_pooled_output)
+        binary_logits = self.binary_classifier(binary_pooled_output)
 
         # Loss function 결정 및 loss 계산
         loss = None
@@ -402,23 +405,26 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
             return ((loss,) + output) if loss is not None else output
         
         # binary classification을 위한 label 정의와 loss 계산
-        binary_labels = [0 for _ in range(len(labels))]
-        relation_cnt = 0
-        for idx, label in enumerate(labels):
-            if label != 0:
-                binary_labels[idx] = 1
-                relation_cnt += 1
-        binary_labels = torch.Tensor(binary_labels).to(device=self.device).long()
+        total_loss = None
+        binary_loss = None
+        if labels is not None:
+            binary_labels = [0 for _ in range(len(labels))]
+            for idx, label in enumerate(labels):
+                if label != 0:
+                    binary_labels[idx] = 1
+            binary_labels = torch.Tensor(binary_labels).to(device=self.device).long()
+            
+            binary_loss_fct = Loss(
+                loss_type="focal_loss",
+                samples_per_class=self.config.sub_samples_per_class,
+                class_balanced=True
+            )
+            binary_loss = binary_loss_fct(binary_logits.view(-1, self.num_sub_labels), binary_labels.view(-1))
         
-        binary_loss_fct = Loss(
-            loss_type="focal_loss",
-            samples_per_class=[len(labels)-relation_cnt, relation_cnt],
-            class_balanced=True
-        )
-        binary_loss = binary_loss_fct(binary_logits.view(-1, self.num_labels), binary_labels.view(-1))
+            total_loss = loss + self.config.sub_task_weight * binary_loss
 
         return SequenceClassifierOutput(
-            loss=loss+binary_loss,
+            loss=total_loss,
             logits=logits,
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,

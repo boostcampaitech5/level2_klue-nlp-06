@@ -97,15 +97,12 @@ def load_data(dataset_dir, ppc_mode):
     # DA/ DC 적용 코드
     print(ppc_mode)
 
-    # for func in ppc_mode.preprocessing:
-    #     new_dataset = globals()[func](dataset)
-    #     dataset = pd.concat([dataset, new_dataset])
     swap = swap_entities(dataset)
     dataset = pd.concat([dataset, swap])
 
     ### config 파일에 원하는 preprocessing_dataset 함수를 입력 해 주세요 ###
-    # dataset = globals()[ppc_mode.pre_dataset](dataset)
-    # dataset = 
+    dataset = globals()[ppc_mode](dataset)
+    
     return dataset
 
 if __name__ == "__main__":

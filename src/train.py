@@ -1,7 +1,8 @@
 import os
 from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
-from src.CustomBertModel import CustomBertForSequenceClassification
+# from src.CustomBertModel import CustomBertForSequenceClassification
+from src.CustomRobertaModel import CustomRobertaForSequenceClassification
 
 import torch
 import pickle as pickle
@@ -38,7 +39,7 @@ def train(CFG, save_path):
 
     # load dataset
     print(f'preprocessing mode: {CFG.data.pre_dataset}')
-    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset)
+    train_dataset = load_data("./data/train/train_original.csv", CFG.data.pre_dataset)
     dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset)
 
     train_label = label_to_num(train_dataset['label'].values)
@@ -69,12 +70,12 @@ def train(CFG, save_path):
     
     # sub task를 위한 sub task label 개수 및 sub task의 반영비 입력
     model_config.num_sub_labels = 2
-    model_config.sub_task_weight = 0.5
+    model_config.sub_task_weight = 1/3
     sub_samples_per_class = [v for (k, v) in sorted(Counter([0 if label == 0 else 1 for label in train_label]).items())]
     model_config.sub_samples_per_class = sub_samples_per_class
     
     # model = AutoModelForSequenceClassification.from_pretrained(
-    model = CustomBertForSequenceClassification.from_pretrained(
+    model = CustomRobertaForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
     
     model.parameters

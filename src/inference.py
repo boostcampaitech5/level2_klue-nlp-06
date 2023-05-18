@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments
-from src.CustomBertModel import CustomBertForSequenceClassification
+# from src.CustomBertModel import CustomBertForSequenceClassification
+from src.CustomRobertaModel import CustomRobertaForSequenceClassification
 from torch.utils.data import DataLoader
 from utils import *
 import pandas as pd
@@ -120,7 +121,7 @@ def main(CFG, run_type, save_path):
 
     print("Inference model path :", model_dir)
     # model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-    model = CustomBertForSequenceClassification.from_pretrained(model_dir)
+    model = CustomRobertaForSequenceClassification.from_pretrained(model_dir)
     model.parameters
     model.to(device)
     print(model.config)

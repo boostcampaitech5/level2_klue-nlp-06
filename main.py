@@ -2,7 +2,7 @@ import yaml
 import argparse
 
 from easydict import EasyDict
-from src import inference, train
+from src import inference, train, hp_train
 from utils import utility
 
 if __name__ == "__main__":
@@ -28,7 +28,12 @@ if __name__ == "__main__":
             yaml.dump(CFG, f)
         CFG = EasyDict(CFG)
 
-        train.main(CFG, save_path)
+        if CFG.train.mode == "hp":
+            print("train mode : hyperparameter tuning train")
+            hp_train.main(CFG, save_path)
+        else:
+            print("train mode : train")
+            train.main(CFG, save_path)
         if run_type == "both":
             inference.main(CFG, run_type, save_path)
         

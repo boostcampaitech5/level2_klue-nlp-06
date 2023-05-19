@@ -9,8 +9,9 @@ import pickle as pickle
 import numpy as np
 import argparse
 from tqdm import tqdm
-from src.bert_custom_clf import Custom_ModelForSequenceClassification
-from src.roberta_custom_clf import Custom_RobertaForSequenceClassification
+from src.bert_custom_clf import Custom_ModelForSequenceClassification, Bert_Joint_model
+from src.roberta_custom_clf import Custom_RobertaForSequenceClassification, Roberta_Joint_model
+
 
 from transformers import AutoConfig
 
@@ -83,7 +84,7 @@ def save_prediction(model, dev_dir, device, tokenizer, save_path, CFG):
     """
 
     dev_id, dev_dataset, dev_label = load_dev_dataset(dev_dir, tokenizer, CFG)
-    Re_dev_dataset = RE_Dataset(dev_dataset, dev_label)
+    Re_dev_dataset = RE_Dataset(dev_dataset, dev_label, None, None)
     pred_dev_answer, output_dev_prob = inference(model, Re_dev_dataset, device)
     pred_dev_answer = num_to_label(pred_dev_answer)
 
@@ -116,11 +117,22 @@ def main(CFG, run_type, save_path):
         
     print("Inference model path :", model_dir)
     # model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    
     # custom model
-    if CFG.model.model_name.find('roberta')== -1:
-        model = Custom_ModelForSequenceClassification.from_pretrained(model_dir)
-    else:
-        model = Custom_RobertaForSequenceClassification.from_pretrained(model_dir)
+    if CFG.model.mode == 'joint':
+        if CFG.model.model_name.find('roberta')== -1:
+            print("model: Bert joint model")
+            model = Bert_Joint_model.from_pretrained(model_dir)
+        else:
+            print("model: roBerta joint model")
+            model = Roberta_Joint_model.from_pretrained(model_dir)
+    else: 
+        if CFG.model.model_name.find('roberta')== -1:
+            print("model: Bert Custom model")
+            model = Custom_ModelForSequenceClassification.from_pretrained(model_dir)
+        else:
+            print("model: roBerta Custom model")
+            model = Custom_RobertaForSequenceClassification.from_pretrained(model_dir)
     model.tokenizer = tokenizer
     
     model.parameters
@@ -134,7 +146,7 @@ def main(CFG, run_type, save_path):
     test_dataset_dir = "./data/test/test_data.csv"
     test_id, test_dataset, test_label = load_test_dataset(
         test_dataset_dir, tokenizer, CFG)
-    Re_test_dataset = RE_Dataset(test_dataset, test_label)
+    Re_test_dataset = RE_Dataset(test_dataset, test_label,  None, None)
 
     # predict answer
     pred_answer, output_prob = inference(

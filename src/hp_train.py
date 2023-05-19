@@ -1,6 +1,7 @@
 import os
 from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
+from src.custom_model import CustomBertForSequenceClassification
 
 import torch
 import pickle as pickle
@@ -13,7 +14,6 @@ wandb login
 import wandb
 import datetime
 import shutil
-import optuna
 from ray import tune
 
 set_seed(10)
@@ -29,24 +29,13 @@ def label_to_num(label):
 
     return num_label
 
-def optuna_hp_space(trial):
-    return {
-        "learning_rate": trial.suggest_categorical("learning_rate", [1e-5, 2e-5, 3e-5, 5e-5]),
-        "per_device_train_batch_size": trial.suggest_categorical("per_device_train_batch_size", [8, 16, 32]),
-        "warmup_ratio": trial.suggest_categorical("warmup_ratio", [0., 0.1, 0.2, 0.6]),
-        "weight_decay": trial.suggest_categorical("weight_decay", [0., 0.1]),
-        "num_train_epochs": trial.suggest_categorical("num_train_epochs",[ 3, 4, 5, 10]),
-    }
-
 def tune_config_ray(trial):
-    return {"learning_rate": tune.grid_search([1e-5, 2e-5, 3e-5, 5e-5]),
-            "num_train_epochs": tune.grid_search([3, 4, 5, 6]),
-            "per_device_train_batch_size": tune.grid_search([8, 16, 32]),
-            "warmup_ratio": tune.grid_search([0., 0.1, 0.2, 0.6]),
-            "weight_decay": tune.grid_search([0., 0.1])
+    return {"learning_rate": tune.choice([1e-5, 3e-5, 5e-5]),
+            "num_train_epochs": tune.choice([5, 6]),
+            "per_device_train_batch_size": tune.choice([8, 16, 32]),
+            "warmup_ratio": tune.choice([0., 0.2]),
+            # "weight_decay": tune.grid_search([0., 0.1])
             }
-
-
 
 def train(CFG, save_path):
     # load model and tokenizer
@@ -55,8 +44,8 @@ def train(CFG, save_path):
 
     # load dataset
     print(f'preprocessing mode: {CFG.data.pre_dataset}')
-    train_dataset = load_data("./data/train/train_bal.csv", CFG.data.pre_dataset)
-    dev_dataset = load_data("./data/train/dev_bal.csv", CFG.data.pre_dataset)
+    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset)
+    dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset)
 
     train_label = label_to_num(train_dataset['label'].values)
     dev_label = label_to_num(dev_dataset['label'].values)
@@ -77,9 +66,12 @@ def train(CFG, save_path):
     model_config = AutoConfig.from_pretrained(MODEL_NAME)
     model_config.num_labels = 30
 
-    model = AutoModelForSequenceClassification.from_pretrained(
+    # model = AutoModelForSequenceClassification.from_pretrained(
+    #     MODEL_NAME, config=model_config)
+    model = CustomBertForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
     print(model.config)
+    model.tokenizer = tokenizer
     model.parameters
     model.resize_token_embeddings(len(tokenizer))
     model.to(device)
@@ -110,14 +102,14 @@ def train(CFG, save_path):
         eval_steps=CFG.train.eval_steps,         # evaluation step.
         load_best_model_at_end=True,
         metric_for_best_model='micro f1 score',
-        lr_scheduler_type='cosine',
+        lr_scheduler_type='linear',
 
         # wandb loggging 추가
         report_to="wandb",  # enable logging to W&B
     )
 
     # For wandb
-    wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=save_path[10:])
+    wandb.init(project="Tune_"+MODEL_NAME.replace(r'/', '_'), name=save_path[10:], entity='sekim520')
     trainer = Trainer(
         # the instantiated 🤗 Transformers model to be trained
         model_init=model_init,

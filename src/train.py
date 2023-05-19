@@ -37,7 +37,7 @@ def train(CFG, save_path):
 
     # load dataset
     print(f'preprocessing mode: {CFG.data.pre_dataset}')
-    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset)
+    train_dataset = load_data("./data/train/train_original.csv", CFG.data.pre_dataset)
     dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset)
 
     train_label = label_to_num(train_dataset['label'].values)
@@ -81,19 +81,19 @@ def train(CFG, save_path):
         learning_rate=CFG.train.LR,             # learning_rate
         per_device_train_batch_size=CFG.train.batch_size, # batch size per device during training
         per_device_eval_batch_size=CFG.train.batch_size,  # batch size for evaluation
-        warmup_steps=500,               # number of warmup steps for learning rate scheduler
-        weight_decay=0.0,              # strength of weight decay
+        # warmup_steps=500,               # number of warmup steps for learning rate scheduler
+        weight_decay=0.05,              # strength of weight decay
         logging_dir=f'{save_path}/logs',   # directory for storing logs
         logging_steps=100,              # log saving step.
-        evaluation_strategy='steps',    # evaluation strategy to adopt during training
-        warmup_ratio = 0.0,
+        evaluation_strategy='no',    # evaluation strategy to adopt during training
+        # warmup_ratio = 0.0,
         # `no`: No evaluation during training.
         # `steps`: Evaluate every `eval_steps`.
         # `epoch`: Evaluate every end of epoch.
         eval_steps=CFG.train.eval_steps,         # evaluation step.
-        load_best_model_at_end=True,
+        load_best_model_at_end=False,
         metric_for_best_model='micro f1 score',
-        lr_scheduler_type='cosine',
+        lr_scheduler_type='linear',
         # label_smoothing_factor=0.5,
         # group_by_length=True,
 
@@ -108,7 +108,7 @@ def train(CFG, save_path):
         model=model,
         args=training_args,                 # training arguments, defined above
         train_dataset=RE_train_dataset,     # training dataset
-        eval_dataset=RE_dev_dataset,        # evaluation dataset
+        # eval_dataset=RE_dev_dataset,        # evaluation dataset
         compute_metrics=compute_metrics,     # define metrics function
     )
     # train model

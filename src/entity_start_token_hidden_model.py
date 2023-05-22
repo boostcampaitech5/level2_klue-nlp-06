@@ -20,7 +20,7 @@ class DenseLayer(nn.Module):
         return self.linear(x)
 
 
-class CustomBertForSequenceClassification(BertPreTrainedModel):
+class StartTokenHiddenModel(BertPreTrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.num_labels = config.num_labels
@@ -135,16 +135,3 @@ class CustomBertForSequenceClassification(BertPreTrainedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
-
-class CustomBertPooler(nn.Module):
-    def __init__(self, config):
-        super().__init__()
-        self.dense = nn.Linear(config.hidden_size, config.hidden_size)
-        self.activation = nn.Tanh()
-
-    def forward(self, hidden_states, token_indices):
-        pooled_output = torch.cat([hidden_states[:, index, :] for index in token_indices], dim=1)
-
-        pooled_output = self.dense(pooled_output)
-        pooled_output = self.activation(pooled_output)
-        return pooled_output

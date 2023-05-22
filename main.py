@@ -2,20 +2,19 @@ import yaml
 import argparse
 
 from easydict import EasyDict
-from src import inference, train, hp_train
+from src import inference, train
 from utils import utility
 
 if __name__ == "__main__":
     # run type 설정
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--run_type', type=str, default="both")
-    parser.add_argument('-c', '--config_name', type=str, default='config')
     args = parser.parse_args()
     run_type = args.run_type
     print("Run type : ", run_type)
 
     # config file
-    with open('./'+args.config_name+'.yaml') as f:
+    with open('./config.yaml') as f:
         CFG = yaml.load(f, Loader=yaml.FullLoader)
 
     # code 실행
@@ -28,12 +27,7 @@ if __name__ == "__main__":
             yaml.dump(CFG, f)
         CFG = EasyDict(CFG)
 
-        if CFG.train.mode == "hp":
-            print("train mode : hyperparameter tuning train")
-            hp_train.main(CFG, save_path)
-        else:
-            print("train mode : train")
-            train.main(CFG, save_path)
+        train.main(CFG, save_path)
         if run_type == "both":
             inference.main(CFG, run_type, save_path)
         

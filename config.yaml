@@ -1,18 +1,23 @@
-admin: US #실험자 이름.
-tokenize: tokenizer
-preprocess: #실행시키고자 하는 전처리 함수들 입력.
-  - translate
-  - 
+admin: JH(batch16) #실험자 이름.
+data:
+  preprocessing: #실행시키고자 하는 전처리 함수들 입력.
+    -
+  pre_dataset: punc_typed_preprocessing_dataset #preprocessing.py 에서 dataset 관련하여 실행하고자 하는 함수 명
+  tokenizer:
+    tokenizing: tokenized_dataset #tokenizing.py 에서 실행하고자 하는 함수 명
+    max_len: 256
 model:
-  model_name: klue/bert-base
-  max_len: 256
+  model_name: klue/bert-base #snunlp/KR-BERT-char16424
+  mode: joint
 train:
   batch_size: 16
-  epochs: 1
-  LR: 0.00005
+  epochs: 3
+  LR: 0.00003
   save_steps: 1500
   eval_steps: 500
+  mode:
 inference:
   get_dev_pred: True #dev set의 inference 여부.
-  run_name: 0510_18:06:30_US #inference만 실행 시 모델 run_name 입력.
-  ckpt: 500 # checkpoint 위치. 0일 때는 자동으로 best_model 사용.
+  run_name: 0518_15:15:12_JH(batch16) #inference만 실행 시 모델 run_name 입력.
+  ckpt: 0 # checkpoint 위치. 0일 때는 자동으로 best_model 사용.
+

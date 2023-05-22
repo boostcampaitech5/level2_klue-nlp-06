@@ -1,6 +1,4 @@
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments
-# from src.CustomBertModel import CustomBertForSequenceClassification
-from src.CustomRobertaModel import CustomRobertaForSequenceClassification
 from torch.utils.data import DataLoader
 from utils import *
 import pandas as pd
@@ -112,24 +110,21 @@ def main(CFG, run_type, save_path):
             model_dir = f"./results/{model_name}/best_model"
         else:
             model_dir = f"./results/{model_name}/checkpoint-{CFG.inference.ckpt}"
+        
+    print("Inference model path :", model_dir)
+    model = AutoModelForSequenceClassification.from_pretrained(model_dir)
+    model.parameters
+    model.to(device)
+
+    get_dev_prediction = CFG.inference.get_dev_pred # dev prediction 파일 만들지 말지 결정하는 변수. config에서 불러오기.
+    if get_dev_prediction==True:
+        save_prediction(model, './data/train/dev.csv', device, tokenizer, model_dir, CFG)
 
     # load test datset
     test_dataset_dir = "./data/test/test_data.csv"
     test_id, test_dataset, test_label = load_test_dataset(
         test_dataset_dir, tokenizer, CFG)
     Re_test_dataset = RE_Dataset(test_dataset, test_label)
-
-    print("Inference model path :", model_dir)
-    # model = AutoModelForSequenceClassification.from_pretrained(model_dir)
-    model = CustomRobertaForSequenceClassification.from_pretrained(model_dir)
-    model.parameters
-    model.to(device)
-    print(model.config)
-
-    # predict dev and save
-    get_dev_prediction = CFG.inference.get_dev_pred # dev prediction 파일 만들지 말지 결정하는 변수. config에서 불러오기.
-    if get_dev_prediction==True:
-        save_prediction(model, './data/train/dev.csv', device, tokenizer, model_dir, CFG)
 
     # predict answer
     pred_answer, output_prob = inference(

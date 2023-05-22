@@ -1,12 +1,9 @@
 import os
 from utils import *
 from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
-# from src.CustomBertModel import CustomBertForSequenceClassification
-from src.CustomRobertaModel import CustomRobertaForSequenceClassification
 
 import torch
 import pickle as pickle
-from collections import Counter
 # For wandb setting
 '''
 terminal 에서,
@@ -39,7 +36,7 @@ def train(CFG, save_path):
 
     # load dataset
     print(f'preprocessing mode: {CFG.data.pre_dataset}')
-    train_dataset = load_data("./data/train/train_original.csv", CFG.data.pre_dataset)
+    train_dataset = load_data("./data/train/train.csv", CFG.data.pre_dataset)
     dev_dataset = load_data("./data/train/dev.csv", CFG.data.pre_dataset)
 
     train_label = label_to_num(train_dataset['label'].values)
@@ -60,35 +57,20 @@ def train(CFG, save_path):
     # setting model hyperparameter
     model_config = AutoConfig.from_pretrained(MODEL_NAME)
     model_config.num_labels = 30
-    
-    # entity embedding을 위한 entity 개수 입력
-    model_config.num_entity = 9
 
-    # focal loss를 위한 weight 입력
-    samples_per_class = [v for (k, v) in sorted(Counter(train_label).items())]
-    model_config.samples_per_class = samples_per_class
-    
-    # sub task를 위한 sub task label 개수 및 sub task의 반영비 입력
-    model_config.num_sub_labels = 2
-    model_config.sub_task_weight = 1/3
-    sub_samples_per_class = [v for (k, v) in sorted(Counter([0 if label == 0 else 1 for label in train_label]).items())]
-    model_config.sub_samples_per_class = sub_samples_per_class
-    
-    # model = AutoModelForSequenceClassification.from_pretrained(
-    model = CustomRobertaForSequenceClassification.from_pretrained(
+    model = AutoModelForSequenceClassification.from_pretrained(
         MODEL_NAME, config=model_config)
-    
+    print(model.config)
     model.parameters
     model.resize_token_embeddings(len(tokenizer))
     model.to(device)
-    print(model.config)
 
     # 사용한 option 외에도 다양한 option들이 있습니다.
     # https://huggingface.co/transformers/main_classes/trainer.html#trainingarguments 참고해주세요.
     training_args = TrainingArguments(
         output_dir=save_path,         # output directory
         # output_dir = utils.make_run_name
-        save_total_limit=1,             # number of total save model.
+        save_total_limit=5,             # number of total save model.
         save_steps=CFG.train.save_steps,                # model saving step.
         num_train_epochs=CFG.train.epochs,            # total number of training epochs
         learning_rate=CFG.train.LR,             # learning_rate

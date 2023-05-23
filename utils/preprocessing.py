@@ -1,4 +1,5 @@
 import pandas as pd
+import yaml
 
 
 def default_preprocessing(dataset):
@@ -70,6 +71,21 @@ def punc_typed_preprocessing_dataset(dataset):
     dataset['sentence'] = sentences
 
     return dataset
+
+def swap_entities(dataset):
+    target_label = ['per:date_of_birth', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues', 'per:origin']
+
+    target = dataset.loc[dataset['label'].isin(target_label)]
+    non_target = dataset.loc[~dataset['label'].isin(target_label)]
+
+    target['subject_entity_type'], target['object_entity_type'] = target['object_entity_type'], target['subject_entity_type']
+    target['subject_begin'], target['object_begin'] = target['object_begin'], target['subject_begin']
+    target['subject_end'], target['object_end'] = target['object_begin'], target['subject_end']
+    target['subject_entity'], target['object_entity'] = target['object_entity'], target['subject_entity']
+
+    swapped = pd.concat([target, non_target])
+
+    return swapped
 
 def load_data(dataset_dir, ppc_mode):
     """ csv 파일을 경로에 맡게 불러 옵니다. """

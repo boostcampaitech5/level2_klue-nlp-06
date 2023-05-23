@@ -19,4 +19,3 @@ inference:
   get_dev_pred: True #dev set의 inference 여부.
   run_name: 0510_18:06:30_JH #inference만 실행 시 모델 run_name 입력.
   ckpt: 500 # checkpoint 위치. 0일 때는 자동으로 best_model 사용.
-

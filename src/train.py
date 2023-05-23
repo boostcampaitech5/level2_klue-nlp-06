@@ -70,7 +70,7 @@ def train(CFG, save_path):
     training_args = TrainingArguments(
         output_dir=save_path,         # output directory
         # output_dir = utils.make_run_name
-        save_total_limit=2,             # number of total save model.
+        save_total_limit=5,             # number of total save model.
         save_steps=CFG.train.save_steps,                # model saving step.
         num_train_epochs=CFG.train.epochs,            # total number of training epochs
         learning_rate=CFG.train.LR,             # learning_rate

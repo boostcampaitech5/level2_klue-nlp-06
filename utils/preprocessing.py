@@ -90,8 +90,7 @@ def punc_typed_preprocessing_dataset(dataset):
 
 
 def swap_entities(dataset):
-    target_label = ['per:date_of_birth', 'per:alternate_names',
-                    'per:siblings', 'per:spouse', 'per:colleagues', 'per:origin']
+    target_label = ['per:date_of_birth', 'per:alternate_names', 'per:siblings', 'per:spouse', 'per:colleagues', 'per:origin']
 
     target = dataset.loc[dataset['label'].isin(target_label)]
     non_target = dataset.loc[~dataset['label'].isin(target_label)]
@@ -104,7 +103,6 @@ def swap_entities(dataset):
     swapped = pd.concat([target, non_target])
 
     return swapped
-
 
 def load_data(dataset_dir, ppc_mode):
     """ csv 파일을 경로에 맡게 불러 옵니다. """

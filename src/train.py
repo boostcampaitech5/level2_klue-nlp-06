@@ -19,6 +19,7 @@ set_seed(10)
 torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
+
 def label_to_num(label):
     num_label = []
     with open('./src/dict_label_to_num.pkl', 'rb') as f:
@@ -44,8 +45,10 @@ def train(CFG, save_path):
 
     # tokenizing dataset
     print(f'tokenizing mode: {CFG.data.tokenizer.tokenizing}')
-    tokenized_train = globals()[CFG.data.tokenizer.tokenizing](train_dataset, tokenizer, CFG.data.tokenizer.max_len)
-    tokenized_dev = globals()[CFG.data.tokenizer.tokenizing](dev_dataset, tokenizer, CFG.data.tokenizer.max_len)
+    tokenized_train = globals()[CFG.data.tokenizer.tokenizing](
+        train_dataset, tokenizer, CFG.data.tokenizer.max_len)
+    tokenized_dev = globals()[CFG.data.tokenizer.tokenizing](
+        dev_dataset, tokenizer, CFG.data.tokenizer.max_len)
 
     # make dataset for pytorch.
     RE_train_dataset = RE_Dataset(tokenized_train, train_label)
@@ -74,7 +77,8 @@ def train(CFG, save_path):
         save_steps=CFG.train.save_steps,                # model saving step.
         num_train_epochs=CFG.train.epochs,            # total number of training epochs
         learning_rate=CFG.train.LR,             # learning_rate
-        per_device_train_batch_size=CFG.train.batch_size, # batch size per device during training
+        # batch size per device during training
+        per_device_train_batch_size=CFG.train.batch_size,
         per_device_eval_batch_size=CFG.train.batch_size,  # batch size for evaluation
         warmup_steps=500,               # number of warmup steps for learning rate scheduler
         weight_decay=0.01,              # strength of weight decay
@@ -112,6 +116,7 @@ def train(CFG, save_path):
 def main(CFG, save_path):
     train(CFG, save_path)
     shutil.rmtree('./wandb')
+
 
 if __name__ == '__main__':
     main()

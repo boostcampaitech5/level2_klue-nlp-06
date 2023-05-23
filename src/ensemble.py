@@ -22,6 +22,7 @@ import argparse
 # ss - softvoting with softmax
 # else - hard voting
 
+
 class Ensemble():
     def __init__(self):
         self.files = os.listdir('./inferences')
@@ -51,6 +52,7 @@ class Ensemble():
         else:
             print(' score weight')
             s = sum(self.scores)
+
             scores =  torch.Tensor([score/s for score in self.scores])
         for i in range(self.num_files):
             self.inf_list[i] = self.inf_list[i].apply(lambda lst: [x * scores[i].item() for x in lst])
@@ -68,6 +70,7 @@ class Ensemble():
         output = output.drop(columns = ['pred_label', 'probs'])
         
         pred_answer =  ensemble_output.apply(lambda row: np.argmax(row, axis=-1))
+
 
         output['pred_label'] = self.num_to_label(pred_answer)
         output['probs'] = ensemble_output
@@ -91,7 +94,6 @@ class Ensemble():
         
         pred_answer =  [self.inf_list[i].apply(lambda row: np.argmax(row, axis=-1)) for i in range(self.num_files)]
         pred_answer = [Counter([pred_answer[i][j] for i in range(self.num_files)]).most_common(1)[0][0] for j in range(len(self.inf_list[0]))]
-
 
         output['pred_label'] = self.num_to_label(pred_answer)
         output['probs'] = ensemble_output

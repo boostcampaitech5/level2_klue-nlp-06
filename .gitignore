@@ -264,6 +264,10 @@ results/
 wandb/
 inferences/
 *.csv
+*.yaml
+*.sh
 
 *.ipynb
 .git-credentials
+
+.screenrc

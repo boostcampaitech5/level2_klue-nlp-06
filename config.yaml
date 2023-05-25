@@ -1,4 +1,4 @@
-admin: JH #실험자 이름.
+admin: SE #실험자 이름.
 data:
   preprocessing: #실행시키고자 하는 전처리 함수들 입력.
     - translate
@@ -15,6 +15,7 @@ train:
   LR: 0.00005
   save_steps: 1500
   eval_steps: 500
+  early_stop: 0 #early stop patience. 0이면 early stop 사용 안함.
 inference:
   get_dev_pred: True #dev set의 inference 여부.
   run_name: 0510_18:06:30_JH #inference만 실행 시 모델 run_name 입력.

@@ -1,6 +1,7 @@
 import os
 from utils import *
-from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed
+from transformers import AutoTokenizer, AutoConfig, AutoModelForSequenceClassification, Trainer, TrainingArguments, RobertaConfig, RobertaTokenizer, RobertaForSequenceClassification, BertTokenizer, set_seed, EarlyStoppingCallback
+from .custom_trainer import CustomTrainer
 
 import torch
 import pickle as pickle
@@ -98,6 +99,7 @@ def train(CFG, save_path):
 
     # For wandb
     wandb.init(project=MODEL_NAME.replace(r'/', '_'), name=save_path[10:])
+    # CustomTrainer 사용 시 CustomTrainer로 바꿔줘야 합니다. 
     trainer = Trainer(
         # the instantiated 🤗 Transformers model to be trained
         model=model,
@@ -106,6 +108,12 @@ def train(CFG, save_path):
         eval_dataset=RE_dev_dataset,        # evaluation dataset
         compute_metrics=compute_metrics     # define metrics function
     )
+
+    # Add callbacks
+    if CFG.train.early_stop > 0:
+        early_stopping_callback = EarlyStoppingCallback(early_stopping_patience=CFG.train.early_stop)
+        trainer.add_callback(early_stopping_callback)
+
     # train model
     trainer.train()
     model.save_pretrained(f'{save_path}/best_model')

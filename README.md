@@ -2,6 +2,15 @@
 level2_klue-nlp-06 created by GitHub Classroom
 
 
+# 🌱Members
+
+
+|<img src='https://avatars.githubusercontent.com/u/85860941?v=4' height=100 width=100px></img>|<img src='https://avatars.githubusercontent.com/u/50359820?v=4' height=100 width=100px></img>|<img src='https://avatars.githubusercontent.com/u/74442786?v=4' height=100 width=100px></img>|<img src='https://avatars.githubusercontent.com/u/99644139?v=4' height=100 width=100px></img>|<img src='https://avatars.githubusercontent.com/u/106165619?v=4' height=100 width=100px></img>|
+| --- | --- | --- | --- | --- |
+| [서가은](https://github.com/gaeun0112) | [김지현](https://github.com/jihyeeon) | [김민호](https://github.com/GrapeDiget) | [김성은](https://github.com/seongeun-k) | [홍영훈](https://github.com/MostlyFor) |
+
+
+
 # 📽️프로젝트 개요
 
 ## 🧶 Relation Extraction

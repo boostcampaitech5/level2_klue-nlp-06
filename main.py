@@ -2,7 +2,7 @@ import yaml
 import argparse
 
 from easydict import EasyDict
-from src import inference, train
+from src import inference, train, hp_train
 from utils import utility
 
 if __name__ == "__main__":

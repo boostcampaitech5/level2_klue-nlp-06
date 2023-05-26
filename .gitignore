@@ -261,6 +261,13 @@ best_model/
 .netrc
 .gitconfig
 results/
+wandb/
+inferences/
+*.csv
+*.yaml
+*.sh
 
 *.ipynb
 .git-credentials
+
+.screenrc
